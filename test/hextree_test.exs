@@ -30,4 +30,13 @@ defmodule HextreeTest do
     t1 = :os.system_time(:milli_seconds)
     IO.puts "map elapsed: #{t1 - t0}"
   end
+
+  test "insert many elements into array" do
+    tree = :array.new(50000)
+    t0 = :os.system_time(:milli_seconds)
+    tree = Enum.reduce(0..49999, tree, &:array.set(&1, &1, &2))
+    res = for i <- 0..49999, do: :array.get(i, tree)
+    t1 = :os.system_time(:milli_seconds)
+    IO.puts "array elapsed: #{t1 - t0}"
+  end
 end
