@@ -57,4 +57,28 @@ defmodule Hextree do
     :math.log10(n)/@depth_divisor |> Float.ceil |> trunc
   end
 
+
+end
+
+defimpl Enumerable, for: Hextree do
+
+  def reduce(%Hextree{length: len} = tree, {:cont, acc}, fun) do
+    reduce({tree, len, 0}, {:cont, acc}, fun)
+  end
+
+  def reduce({tree, len, i}, {:cont, acc}, fun) when len === i do
+    {:done, acc}
+  end
+
+  def reduce({tree, len, i}, {:cont, acc}, fun) do
+     reduce({tree, len, i+1}, fun.(Hextree.get(tree, i), acc), fun)
+  end
+
+  def count(_n) do
+    {:error, __MODULE__}
+  end
+
+  def member?(_n, _term) do
+    {:error, __MODULE__}
+  end
 end

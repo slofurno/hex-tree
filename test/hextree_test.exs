@@ -9,7 +9,6 @@ defmodule HextreeTest do
   test "put and get element" do
     tree = Hextree.new(100)
     tree = Hextree.put(tree, 50, "HELLO")
-    IO.inspect(tree)
     assert Hextree.get(tree, 50) == "HELLO"
   end
 
@@ -38,5 +37,10 @@ defmodule HextreeTest do
     res = for i <- 0..49999, do: :array.get(i, tree)
     t1 = :os.system_time(:milli_seconds)
     IO.puts "array elapsed: #{t1 - t0}"
+  end
+
+  test "implements enumerable" do
+    tree = Enum.reduce(1..512, Hextree.new(512), &Hextree.put(&2, &1, &1))
+    assert Enum.filter(tree, & &1 <= 100) == Enum.to_list(1..100)
   end
 end
