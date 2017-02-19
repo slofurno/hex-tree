@@ -4,11 +4,19 @@ defmodule Hextree do
   defstruct [:length, :depth, :root]
 
   @empty_node Tuple.duplicate(:nil, 16)
-  @depth_divisor :math.log10(16)
 
-  def new(n) do
+  def new(n) when is_integer(n) do
     %__MODULE__{length: n, depth: depth(n)}
+  end
 
+  def new(xs) do
+    xs = Enum.to_list(xs)
+    insert(Hextree.new(length(xs)), xs, 0)
+  end
+
+  defp insert(tree, [], _n), do: tree
+  defp insert(tree, [x|xs], n) do
+    insert(Hextree.put(tree, n, x), xs, n+1)
   end
 
   def put(%__MODULE__{length: length, root: root, depth: depth} = tree, index, val) do
@@ -54,16 +62,23 @@ defmodule Hextree do
   end
 
   def depth(n) do
-    :math.log10(n)/@depth_divisor |> Float.ceil |> trunc
+    :math.log10(n)/:math.log10(16)|> Float.ceil |> trunc
   end
 
 
 end
 
 defimpl Enumerable, for: Hextree do
-
   def reduce(%Hextree{length: len} = tree, {:cont, acc}, fun) do
     reduce({tree, len, 0}, {:cont, acc}, fun)
+  end
+
+  def reduce(state, {:suspend, acc}, fun) do
+    {:suspended, acc, &reduce(state, &1, fun)}
+  end
+
+  def reduce(_state, {:halt, acc}, _fun) do
+    {:halted, acc}
   end
 
   def reduce({tree, len, i}, {:cont, acc}, fun) when len === i do

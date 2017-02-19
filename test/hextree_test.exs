@@ -39,8 +39,17 @@ defmodule HextreeTest do
     IO.puts "array elapsed: #{t1 - t0}"
   end
 
+  test "created from enumerable" do
+    tree = Hextree.new(1..5)
+    assert Hextree.get(tree, 0) == 1
+  end
+
   test "implements enumerable" do
     tree = Enum.reduce(1..512, Hextree.new(512), &Hextree.put(&2, &1, &1))
     assert Enum.filter(tree, & &1 <= 100) == Enum.to_list(1..100)
+  end
+
+  test "supports suspended enumeration" do
+    assert Enum.zip(1..3, Hextree.new(1..3)) == [{1,1}, {2,2}, {3,3}]
   end
 end
